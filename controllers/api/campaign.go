@@ -136,7 +136,6 @@ func (as *Server) CampaignComplete(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 // CampaignResult allows an individual result in a campaign to be updated
 func (as *Server) CampaignResult(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
