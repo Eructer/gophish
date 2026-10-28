@@ -3,10 +3,10 @@ package api
 import (
 	"net/http"
 
-	mid "github.com/gophish/gophish/middleware"
-	"github.com/gophish/gophish/middleware/ratelimit"
-	"github.com/gophish/gophish/models"
-	"github.com/gophish/gophish/worker"
+	mid "github.com/Eructer/gophish/middleware"
+	"github.com/Eructer/gophish/middleware/ratelimit"
+	"github.com/Eructer/gophish/models"
+	"github.com/Eructer/gophish/worker"
 	"github.com/gorilla/mux"
 )
 
@@ -67,6 +67,7 @@ func (as *Server) registerRoutes() {
 	router.HandleFunc("/campaigns/{id:[0-9]+}/results", as.CampaignResults)
 	router.HandleFunc("/campaigns/{id:[0-9]+}/summary", as.CampaignSummary)
 	router.HandleFunc("/campaigns/{id:[0-9]+}/complete", as.CampaignComplete)
+	router.HandleFunc("/campaigns/{id:[0-9]+}/results/{rid}", as.CampaignResult)
 	router.HandleFunc("/groups/", as.Groups)
 	router.HandleFunc("/groups/summary", as.GroupsSummary)
 	router.HandleFunc("/groups/{id:[0-9]+}", as.Group)

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	ctx "github.com/gophish/gophish/context"
-	log "github.com/gophish/gophish/logger"
-	"github.com/gophish/gophish/models"
+	ctx "github.com/Eructer/gophish/context"
+	log "github.com/Eructer/gophish/logger"
+	"github.com/Eructer/gophish/models"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 )
@@ -133,5 +133,36 @@ func (as *Server) CampaignComplete(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		JSONResponse(w, models.Response{Success: true, Message: "Campaign completed successfully!"}, http.StatusOK)
+	}
+}
+
+
+// CampaignResult allows an individual result in a campaign to be updated
+func (as *Server) CampaignResult(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	cid, _ := strconv.ParseInt(vars["id"], 0, 64)
+	uid := ctx.Get(r, "user_id").(int64)
+	res, err := models.GetResultForCampaign(vars["rid"], cid, uid)
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: "Result not found"}, http.StatusNotFound)
+		return
+	}
+
+	switch {
+	case r.Method == "GET":
+		JSONResponse(w, res, http.StatusOK)
+	case r.Method == "PUT":
+		req := models.ResultUpdate{}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
+			return
+		}
+		if req.Reported && !res.Reported {
+			if res, err = models.MarkReport(vars["rid"], cid, uid, req); err != nil {
+				JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+				return
+			}
+		}
+		JSONResponse(w, res, http.StatusOK)
 	}
 }

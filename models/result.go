@@ -7,7 +7,7 @@ import (
 	"net"
 	"time"
 
-	log "github.com/gophish/gophish/logger"
+	log "github.com/Eructer/gophish/logger"
 	"github.com/jinzhu/gorm"
 	"github.com/oschwald/maxminddb-golang"
 )
@@ -19,6 +19,10 @@ type mmCity struct {
 type mmGeoPoint struct {
 	Latitude  float64 `maxminddb:"latitude"`
 	Longitude float64 `maxminddb:"longitude"`
+}
+
+type ResultUpdate struct {
+	Reported bool `json:"reported"`
 }
 
 // Result contains the fields for a result object,
@@ -206,5 +210,26 @@ func (r *Result) GenerateId(tx *gorm.DB) error {
 func GetResult(rid string) (Result, error) {
 	r := Result{}
 	err := db.Where("r_id=?", rid).First(&r).Error
+	return r, err
+}
+
+func GetResultForCampaign(rid string, cid int64, uid int64) (Result, error) {
+	r := Result{}
+	err := db.Where("r_id=? AND campaign_id=? AND user_id=?", rid, cid, uid).First(&r).Error
+	return r, err
+}
+
+// MarkReport marks the result's reported as true
+// given ResultId, campaign_id, user_id, and new details
+func MarkReport(rid string, cid int64, uid int64, details ResultUpdate) (Result, error) {
+	r := Result{}
+	err := db.Where("r_id=? AND campaign_id=? AND user_id=?", rid, cid, uid).First(&r).Error
+	if err != nil {
+		return r, err
+	}
+	if r.Reported {
+		return r, nil
+	}
+	err = r.HandleEmailReport(EventDetails{})
 	return r, err
 }

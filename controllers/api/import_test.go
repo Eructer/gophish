@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gophish/gophish/dialer"
-	"github.com/gophish/gophish/models"
+	"github.com/Eructer/gophish/dialer"
+	"github.com/Eructer/gophish/models"
 )
 
 func makeImportRequest(ctx *testContext, allowedHosts []string, url string) *httptest.ResponseRecorder {
